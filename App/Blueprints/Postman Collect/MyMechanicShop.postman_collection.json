@@ -1,0 +1,908 @@
+{
+	"info": {
+		"_postman_id": "2c2ec51b-7cb2-4994-84e5-4cec27c98b51",
+		"name": "MyMechanicShop",
+		"description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49961491",
+		"_collection_link": "https://bishoptoukon-8536912.postman.co/workspace/JH's-Workspace~e6f6c9cf-5129-4ee3-8f6a-048200832fa7/collection/49961491-2c2ec51b-7cb2-4994-84e5-4cec27c98b51?action=share&source=collection_link&creator=49961491"
+	},
+	"item": [
+		{
+			"name": "Customers",
+			"item": [
+				{
+					"name": "Update Customers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for successful response",
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});",
+									"",
+									"// Response time validation",
+									"pm.test(\"Response time is acceptable\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+									"});",
+									"",
+									"// Content-Type header validation",
+									"pm.test(\"Content-Type header is present\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"",
+									"// Enhanced error handling and diagnostics",
+									"if (pm.response.code >= 400) {",
+									"    console.log(\"╔════════════════════════════════════════════════════════════╗\");",
+									"    console.log(\"║              ERROR DIAGNOSTICS REPORT                      ║\");",
+									"    console.log(\"╚════════════════════════════════════════════════════════════╝\");",
+									"    ",
+									"    // Response details",
+									"    console.log(\"\\n📊 RESPONSE INFORMATION:\");",
+									"    console.log(\"   Status Code:\", pm.response.code);",
+									"    console.log(\"   Status Text:\", pm.response.status);",
+									"    console.log(\"   Response Time:\", pm.response.responseTime + \"ms\");",
+									"    console.log(\"   Response Size:\", pm.response.responseSize + \" bytes\");",
+									"    ",
+									"    // Request details for debugging",
+									"    console.log(\"\\n📤 REQUEST DETAILS:\");",
+									"    console.log(\"   Method:\", pm.request.method);",
+									"    console.log(\"   URL:\", pm.request.url.toString());",
+									"    ",
+									"    // URL Analysis for 404 errors",
+									"    if (pm.response.code === 404) {",
+									"        console.log(\"\\n🔍 404 ERROR ANALYSIS:\");",
+									"        console.log(\"   The server cannot find the requested resource.\");",
+									"        console.log(\"\\n   Common causes:\");",
+									"        console.log(\"   • Incorrect URL path or endpoint\");",
+									"        console.log(\"   • Resource ID does not exist in the database\");",
+									"        console.log(\"   • Typo in the URL\");",
+									"        console.log(\"   • Server route not properly configured\");",
+									"        console.log(\"   • Resource may have been deleted\");",
+									"        ",
+									"        // Parse URL components",
+									"        const url = pm.request.url;",
+									"        console.log(\"\\n   URL Components:\");",
+									"        console.log(\"   • Protocol:\", url.protocol);",
+									"        console.log(\"   • Host:\", url.host.join(\".\"));",
+									"        console.log(\"   • Port:\", url.port || \"(default)\");",
+									"        console.log(\"   • Path:\", url.path.join(\"/\"));",
+									"        ",
+									"        // Check for path variables",
+									"        if (url.variable && url.variable.length > 0) {",
+									"            console.log(\"\\n   Path Variables:\");",
+									"            url.variable.forEach(variable => {",
+									"                console.log(\"   • \" + variable.key + \" = \" + variable.value);",
+									"            });",
+									"        }",
+									"        ",
+									"        // Check query parameters",
+									"        if (url.query && url.query.length > 0) {",
+									"            console.log(\"\\n   Query Parameters:\");",
+									"            url.query.forEach(param => {",
+									"                if (!param.disabled) {",
+									"                    console.log(\"   • \" + param.key + \" = \" + param.value);",
+									"                }",
+									"            });",
+									"        }",
+									"        ",
+									"        console.log(\"\\n   💡 Troubleshooting suggestions:\");",
+									"        console.log(\"   1. Verify the resource ID exists (check database or GET request)\");",
+									"        console.log(\"   2. Confirm the endpoint path matches server routes\");",
+									"        console.log(\"   3. Check if the server is running on the correct port\");",
+									"        console.log(\"   4. Review server logs for routing issues\");",
+									"        console.log(\"   5. Test with a known valid resource ID\");",
+									"    }",
+									"    ",
+									"    // Request headers",
+									"    console.log(\"\\n📋 REQUEST HEADERS:\");",
+									"    if (pm.request.headers.count() > 0) {",
+									"        pm.request.headers.each(header => {",
+									"            console.log(\"   \" + header.key + \":\", header.value);",
+									"        });",
+									"    } else {",
+									"        console.log(\"   (No headers)\");",
+									"    }",
+									"    ",
+									"    // Request body analysis",
+									"    console.log(\"\\n📦 REQUEST BODY:\");",
+									"    try {",
+									"        if (pm.request.body && pm.request.body.mode) {",
+									"            console.log(\"   Body Mode:\", pm.request.body.mode);",
+									"            ",
+									"            if (pm.request.body.mode === \"raw\") {",
+									"                const requestBody = pm.request.body.raw;",
+									"                console.log(\"   Body Content:\");",
+									"                ",
+									"                // Try to parse and pretty-print JSON",
+									"                try {",
+									"                    const jsonBody = JSON.parse(requestBody);",
+									"                    console.log(\"   \" + JSON.stringify(jsonBody, null, 2).split(\"\\n\").join(\"\\n   \"));",
+									"                    ",
+									"                    // Validate body structure",
+									"                    console.log(\"\\n   Body Properties:\");",
+									"                    Object.keys(jsonBody).forEach(key => {",
+									"                        const value = jsonBody[key];",
+									"                        const type = Array.isArray(value) ? \"array\" : typeof value;",
+									"                        console.log(\"   • \" + key + \": \" + type);",
+									"                    });",
+									"                } catch (e) {",
+									"                    console.log(\"   \" + requestBody);",
+									"                }",
+									"            } else {",
+									"                console.log(\"   \" + pm.request.body.toString());",
+									"            }",
+									"        } else {",
+									"            console.log(\"   (No body)\");",
+									"        }",
+									"    } catch (e) {",
+									"        console.log(\"   Unable to parse request body:\", e.message);",
+									"    }",
+									"    ",
+									"    // Response headers",
+									"    console.log(\"\\n📋 RESPONSE HEADERS:\");",
+									"    if (pm.response.headers.count() > 0) {",
+									"        pm.response.headers.each(header => {",
+									"            console.log(\"   \" + header.key + \":\", header.value);",
+									"        });",
+									"    } else {",
+									"        console.log(\"   (No headers)\");",
+									"    }",
+									"    ",
+									"    // Parse and analyze error response",
+									"    console.log(\"\\n❌ ERROR RESPONSE:\");",
+									"    let errorResponse;",
+									"    let isJson = false;",
+									"    let isHtml = false;",
+									"    ",
+									"    try {",
+									"        // Check content type",
+									"        const contentType = pm.response.headers.get(\"Content-Type\");",
+									"        if (contentType) {",
+									"            isJson = contentType.includes(\"application/json\");",
+									"            isHtml = contentType.includes(\"text/html\");",
+									"        }",
+									"        ",
+									"        // Try to parse as JSON first",
+									"        if (isJson || (!isHtml && pm.response.text().trim().startsWith(\"{\"))) {",
+									"            errorResponse = pm.response.json();",
+									"            console.log(\"   Response Type: JSON\");",
+									"            console.log(\"   \" + JSON.stringify(errorResponse, null, 2).split(\"\\n\").join(\"\\n   \"));",
+									"            ",
+									"            // Extract common error fields",
+									"            if (errorResponse.error) {",
+									"                console.log(\"\\n   Error Message:\", errorResponse.error);",
+									"            }",
+									"            if (errorResponse.message) {",
+									"                console.log(\"   Message:\", errorResponse.message);",
+									"            }",
+									"            if (errorResponse.detail) {",
+									"                console.log(\"   Detail:\", errorResponse.detail);",
+									"            }",
+									"        } else {",
+									"            // Handle as text/HTML",
+									"            const responseText = pm.response.text();",
+									"            console.log(\"   Response Type:\", isHtml ? \"HTML\" : \"Text\");",
+									"            ",
+									"            if (isHtml) {",
+									"                // Extract text from HTML",
+									"                const textContent = responseText.replace(/<[^>]*>/g, \" \").replace(/\\s+/g, \" \").trim();",
+									"                console.log(\"   \" + textContent.substring(0, 500));",
+									"                ",
+									"                if (textContent.length > 500) {",
+									"                    console.log(\"   ... (truncated)\");",
+									"                }",
+									"            } else {",
+									"                console.log(\"   \" + responseText.substring(0, 1000));",
+									"                ",
+									"                if (responseText.length > 1000) {",
+									"                    console.log(\"   ... (truncated)\");",
+									"                }",
+									"            }",
+									"        }",
+									"    } catch (e) {",
+									"        console.log(\"   Unable to parse response:\", e.message);",
+									"        console.log(\"   Raw response:\", pm.response.text().substring(0, 500));",
+									"    }",
+									"    ",
+									"    // Additional error-specific guidance",
+									"    console.log(\"\\n🔧 ERROR-SPECIFIC GUIDANCE:\");",
+									"    switch (pm.response.code) {",
+									"        case 400:",
+									"            console.log(\"   Bad Request - Check request body format and required fields\");",
+									"            break;",
+									"        case 401:",
+									"            console.log(\"   Unauthorized - Verify authentication credentials\");",
+									"            break;",
+									"        case 403:",
+									"            console.log(\"   Forbidden - Check user permissions and access rights\");",
+									"            break;",
+									"        case 404:",
+									"            console.log(\"   Not Found - Verify the URL and resource existence\");",
+									"            break;",
+									"        case 405:",
+									"            console.log(\"   Method Not Allowed - Check if \" + pm.request.method + \" is supported\");",
+									"            break;",
+									"        case 409:",
+									"            console.log(\"   Conflict - Resource may already exist or conflict with current state\");",
+									"            break;",
+									"        case 422:",
+									"            console.log(\"   Unprocessable Entity - Validation failed, check data format\");",
+									"            break;",
+									"        case 429:",
+									"            console.log(\"   Too Many Requests - Rate limit exceeded, wait before retrying\");",
+									"            break;",
+									"        case 500:",
+									"            console.log(\"   Internal Server Error - Check server logs for details\");",
+									"            break;",
+									"        case 502:",
+									"            console.log(\"   Bad Gateway - Upstream server issue\");",
+									"            break;",
+									"        case 503:",
+									"            console.log(\"   Service Unavailable - Server temporarily unavailable\");",
+									"            break;",
+									"        case 504:",
+									"            console.log(\"   Gateway Timeout - Upstream server timeout\");",
+									"            break;",
+									"        default:",
+									"            console.log(\"   HTTP \" + pm.response.code + \" error occurred\");",
+									"    }",
+									"    ",
+									"    // Environment and variable information",
+									"    console.log(\"\\n🌍 ENVIRONMENT CONTEXT:\");",
+									"    console.log(\"   Active Environment:\", pm.environment.name || \"(None)\");",
+									"    ",
+									"    // Check for relevant variables",
+									"    const relevantVars = [\"baseUrl\", \"base_url\", \"host\", \"port\", \"customerId\", \"customer_id\"];",
+									"    let foundVars = false;",
+									"    ",
+									"    relevantVars.forEach(varName => {",
+									"        const value = pm.variables.get(varName);",
+									"        if (value !== undefined) {",
+									"            if (!foundVars) {",
+									"                console.log(\"   Relevant Variables:\");",
+									"                foundVars = true;",
+									"            }",
+									"            console.log(\"   • \" + varName + \" = \" + value);",
+									"        }",
+									"    });",
+									"    ",
+									"    if (!foundVars) {",
+									"        console.log(\"   No relevant variables found\");",
+									"    }",
+									"    ",
+									"    console.log(\"\\n╔════════════════════════════════════════════════════════════╗\");",
+									"    console.log(\"║                  END OF DIAGNOSTICS                        ║\");",
+									"    console.log(\"╚════════════════════════════════════════════════════════════╝\\n\");",
+									"}",
+									"",
+									"// Success logging (optional - only for successful requests)",
+									"if (pm.response.code >= 200 && pm.response.code < 300) {",
+									"    console.log(\"✅ Request successful!\");",
+									"    console.log(\"   Status:\", pm.response.code, pm.response.status);",
+									"    console.log(\"   Response time:\", pm.response.responseTime + \"ms\");",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"address\": \"156 testing lane\",\n    \"cars\": [],\n    \"customer_id\": 1,\n    \"email\": \"JohnDoe@gmail.com\",\n    \"name\": \"John Doe\",\n    \"phone\": \"441-293-7575\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/customers/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"customers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Customers",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Do\",\n    \"address\": \"156 testing lane\",\n    \"email\": \"JohnDoe1@gmail.com\",\n    \"phone\": \"441-200-7583\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/customers",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check customer by ID",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/customers/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"customers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check all customers",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/customers",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Members",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/customers/2",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"customers",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Mechanic",
+			"item": [
+				{
+					"name": "Create Mechanic",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Jackie Lee\",\n    \"address\": \"134 fruitful lane\",\n    \"salary\": 87000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/mechanics",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"mechanics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Mechanics",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/mechanics",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"mechanics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Mechanics by id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/mechanics/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"mechanics",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Mechanics",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"address\": \"134 fruitful lane\",\n    \"mechanic_id\": 1,\n    \"name\": \"Johnny Lee\",\n    \"salary\": 90000.0,\n    \"tickets\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/mechanics/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"mechanics",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Mechanic by id",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/mechanics/2",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"mechanics",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Service_Ticket",
+			"item": [
+				{
+					"name": "Create Service Ticket",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vin\": \"1HGCM82633A123456\",\n    \"description\": \"Oil change\",\n    \"date\": \"2023-10-01T10:00:00\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5001/tickets",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5001",
+							"path": [
+								"tickets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Service Tickets",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \n    \"description\": \"Oil change\",\n    \"date\": \"2023-10-01T10:00:00\",\n    \"vin\": \"1HGCM82633A123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5001/tickets",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5001",
+							"path": [
+								"tickets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Service Ticket by id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5001/tickets/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5001",
+							"path": [
+								"tickets",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Service Ticket by id",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"date\": \"2023-10-01T10:00:00\",\n    \"description\": \"Filter change\",\n    \"vin\": \"1HGCM82633A123456\"\n}   ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5001/tickets/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5001",
+							"path": [
+								"tickets",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Service Ticket by id",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"car\": \"Toyota Corolla\",\n    \"description\": \"Oil change\",\n    \"date\": \"2023-10-01T10:00:00\",\n    \"vin\": \"1HGCM82633A123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5001/tickets/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5001",
+							"path": [
+								"tickets",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Create Ticket",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"car\": \"Toyota Corolla\",\n    \"description\": \"Oil change\",\n    \"date\": \"2023-10-01T10:00:00\",\n    \"vin\": \"1HGCM82633A123456\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5001/tickets",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5001",
+					"path": [
+						"tickets"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "last_error_status",
+			"value": ""
+		},
+		{
+			"key": "last_error_message",
+			"value": ""
+		},
+		{
+			"key": "last_error_details",
+			"value": ""
+		},
+		{
+			"key": "last_error_code",
+			"value": ""
+		},
+		{
+			"key": "last_error_type",
+			"value": ""
+		},
+		{
+			"key": "last_error_timestamp",
+			"value": ""
+		},
+		{
+			"key": "last_error_url",
+			"value": ""
+		},
+		{
+			"key": "last_error_report",
+			"value": ""
+		},
+		{
+			"key": "lastErrorReport",
+			"value": ""
+		}
+	]
+}
