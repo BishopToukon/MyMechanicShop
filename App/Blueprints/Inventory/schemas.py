@@ -1,9 +1,5 @@
+from App.models import Inventory, Customer, ServiceTicket, Mechanics
 from App.extensions import ma
-from App.models import Customer, ServiceTicket, Mechanics
-from App.models import Mechanics
-from marshmallow import fields
-
-# SCHEMAS
 
 class CustomerSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -25,6 +21,14 @@ class MechanicSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
         load_instance = True
 
+class InventorySchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Inventory  # Link the schema to the Inventory model
+        include_relationships = True  # Include relationships if any
+        load_instance = True  # Deserialize to model instances
 
-mechanic_schema = MechanicSchema()
-mechanics_schema = MechanicSchema(many=True)
+# Single inventory item schema
+inventory_schema = InventorySchema()
+
+# Multiple inventory items schema
+inventories_schema = InventorySchema(many=True)

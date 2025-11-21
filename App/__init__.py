@@ -1,5 +1,6 @@
 from flask import Flask
-from App.extensions import db, ma
+from App.Blueprints.Inventory.routes import inventory_bp  # Import the inventory blueprint
+from App.extensions import db, ma, limiter, cache
 from App.config import DevelopmentConfig
 from App.Blueprints.Service_Ticket_blueprint.routes import service_tickets_bp
 from App.Blueprints.Mechanic_blueprint.routes import mechanics_bp
@@ -14,11 +15,14 @@ def create_app(config_name=None):
     # Initialize extensions
     db.init_app(app)
     ma.init_app(app)
+    limiter.init_app(app)
+    cache.init_app(app)
 
     # Register blueprints
     app.register_blueprint(customers_bp, url_prefix="/customers")
     app.register_blueprint(mechanics_bp, url_prefix="/mechanics")
     app.register_blueprint(service_tickets_bp, url_prefix="/tickets")
+    app.register_blueprint(inventory_bp, url_prefix="/inventory")  # Register inventory blueprint
 
 
     return app

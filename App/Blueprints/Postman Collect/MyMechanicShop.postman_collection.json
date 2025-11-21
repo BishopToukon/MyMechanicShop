@@ -439,6 +439,46 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Create customer login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"fruitcake@gmail.com\",\n    \"password\": \"Imabiscuit\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/customers/login",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"customers",
+								"login"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -648,6 +688,49 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Create Mechanics (new)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3MTE0MTMsImlhdCI6MTc2MzcwNzgxMywic3ViIjoiNCJ9.DGTsI_HB-647y5Xq5YfplspDSZZUQ7HJR3J879O8EQE"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Vanessa Ocho\",\n    \"salary\": 89000,\n    \"address\": \"103 workshop lane\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/mechanics",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"mechanics"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -832,8 +915,554 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Create service ticket (newer version)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Diagnostic Script for Ticket Creation Endpoint",
+									"console.log(\"=== TICKET CREATION DIAGNOSTIC REPORT ===\\n\");",
+									"",
+									"// 1. Response Status Analysis",
+									"console.log(\"1. RESPONSE STATUS:\");",
+									"console.log(\"   Status Code:\", pm.response.code);",
+									"console.log(\"   Status Text:\", pm.response.status);",
+									"",
+									"pm.test(\"Response status code check\", function() {",
+									"    if (pm.response.code === 500) {",
+									"        console.log(\"   ⚠️ Server Error (500) - Issue on backend\");",
+									"    } else if (pm.response.code === 400) {",
+									"        console.log(\"   ⚠️ Bad Request (400) - Check request body format\");",
+									"    } else if (pm.response.code === 401) {",
+									"        console.log(\"   ⚠️ Unauthorized (401) - Check authentication token\");",
+									"    } else if (pm.response.code === 201 || pm.response.code === 200) {",
+									"        console.log(\"   ✓ Success!\");",
+									"        pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"    }",
+									"});",
+									"",
+									"// 2. Request Body Analysis",
+									"console.log(\"\\n2. REQUEST BODY ANALYSIS:\");",
+									"try {",
+									"    const requestBody = JSON.parse(pm.request.body.raw);",
+									"    console.log(\"   Sent Body:\", JSON.stringify(requestBody, null, 2));",
+									"    ",
+									"    // Check for common field issues",
+									"    if (requestBody.customer && typeof requestBody.customer === 'string') {",
+									"        console.log(\"   ⚠️ WARNING: Using 'customer' field with string value\");",
+									"        console.log(\"   💡 SUGGESTION: API likely expects 'customer_id' as integer\");",
+									"        console.log(\"   Example: { \\\"customer_id\\\": 1 }\");",
+									"    }",
+									"    ",
+									"    if (requestBody.customer_id && typeof requestBody.customer_id === 'number') {",
+									"        console.log(\"   ✓ Using correct 'customer_id' field with integer value\");",
+									"    }",
+									"    ",
+									"    if (requestBody.description) {",
+									"        console.log(\"   ✓ Description field present:\", requestBody.description);",
+									"    }",
+									"    ",
+									"    if (requestBody.date) {",
+									"        console.log(\"   ✓ Date field present:\", requestBody.date);",
+									"    }",
+									"} catch (e) {",
+									"    console.log(\"   ⚠️ Could not parse request body:\", e.message);",
+									"}",
+									"",
+									"// 3. JWT Token Analysis",
+									"console.log(\"\\n3. JWT TOKEN ANALYSIS:\");",
+									"const authHeader = pm.request.headers.get(\"Authorization\");",
+									"if (authHeader && authHeader.startsWith(\"Bearer \")) {",
+									"    const token = authHeader.substring(7);",
+									"    try {",
+									"        // Decode JWT (without verification)",
+									"        const parts = token.split('.');",
+									"        if (parts.length === 3) {",
+									"            const payload = JSON.parse(atob(parts[1]));",
+									"            console.log(\"   Token Payload:\", JSON.stringify(payload, null, 2));",
+									"            ",
+									"            const now = Math.floor(Date.now() / 1000);",
+									"            const issuedAt = payload.iat;",
+									"            const expiresAt = payload.exp;",
+									"            ",
+									"            console.log(\"   Current Time:\", new Date(now * 1000).toISOString());",
+									"            console.log(\"   Token Issued:\", new Date(issuedAt * 1000).toISOString());",
+									"            console.log(\"   Token Expires:\", new Date(expiresAt * 1000).toISOString());",
+									"            ",
+									"            if (expiresAt < now) {",
+									"                console.log(\"   ❌ TOKEN EXPIRED!\");",
+									"            } else {",
+									"                console.log(\"   ✓ Token is valid (not expired)\");",
+									"            }",
+									"            ",
+									"            if (issuedAt > now) {",
+									"                console.log(\"   ⚠️ Token issued in the future (clock skew?)\");",
+									"            }",
+									"        }",
+									"    } catch (e) {",
+									"        console.log(\"   ⚠️ Could not decode JWT:\", e.message);",
+									"    }",
+									"} else {",
+									"    console.log(\"   ⚠️ No Bearer token found in Authorization header\");",
+									"}",
+									"",
+									"// 4. Response Body Analysis",
+									"console.log(\"\\n4. RESPONSE BODY ANALYSIS:\");",
+									"try {",
+									"    const responseBody = pm.response.json();",
+									"    console.log(\"   Response:\", JSON.stringify(responseBody, null, 2));",
+									"    ",
+									"    if (responseBody.error) {",
+									"        console.log(\"   ❌ ERROR MESSAGE:\", responseBody.error);",
+									"        ",
+									"        // Analyze specific error patterns",
+									"        if (responseBody.error.includes(\"DummySession\")) {",
+									"            console.log(\"\\n   💡 DIAGNOSIS: Backend session/database error\");",
+									"            console.log(\"   Possible causes:\");",
+									"            console.log(\"   - Incorrect field names in request body\");",
+									"            console.log(\"   - Missing required fields\");",
+									"            console.log(\"   - Invalid data types (string vs integer)\");",
+									"        }",
+									"        ",
+									"        if (responseBody.error.includes(\"attribute\")) {",
+									"            console.log(\"   💡 This suggests the backend is trying to access\");",
+									"            console.log(\"      a property that doesn't exist on an object\");",
+									"        }",
+									"    }",
+									"    ",
+									"    if (responseBody.id) {",
+									"        console.log(\"   ✓ Ticket created successfully with ID:\", responseBody.id);",
+									"    }",
+									"} catch (e) {",
+									"    console.log(\"   Response is not JSON or empty\");",
+									"    console.log(\"   Raw response:\", pm.response.text().substring(0, 200));",
+									"}",
+									"",
+									"// 5. Recommendations",
+									"console.log(\"\\n5. RECOMMENDATIONS:\");",
+									"console.log(\"   1. Change 'customer' to 'customer_id' with integer value\");",
+									"console.log(\"   2. Ensure customer_id corresponds to existing customer\");",
+									"console.log(\"   3. Verify JWT token is fresh and valid\");",
+									"console.log(\"   4. Check backend logs for full error details\");",
+									"",
+									"console.log(\"\\n=== END DIAGNOSTIC REPORT ===\");",
+									"",
+									"// Tests for successful response",
+									"pm.test(\"Response time is acceptable\", function() {",
+									"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+									"});",
+									"",
+									"pm.test(\"Content-Type header is present\", function() {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3MTE0MTMsImlhdCI6MTc2MzcwNzgxMywic3ViIjoiNCJ9.DGTsI_HB-647y5Xq5YfplspDSZZUQ7HJR3J879O8EQE"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\":\"Oil change\",\n    \"date\":\"2025-11-20T12:45:00\",\n    \"customer_id\": 4\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/tickets",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"tickets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add mechanic to ticket by ID",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3MTE0MTMsImlhdCI6MTc2MzcwNzgxMywic3ViIjoiNCJ9.DGTsI_HB-647y5Xq5YfplspDSZZUQ7HJR3J879O8EQE"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"add_ids\": [1]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/tickets/1/edit",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"tickets",
+								"1",
+								"edit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Mechanic by ID from Service ticket",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3MTE0MTMsImlhdCI6MTc2MzcwNzgxMywic3ViIjoiNCJ9.DGTsI_HB-647y5Xq5YfplspDSZZUQ7HJR3J879O8EQE"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"remove_ids\": [1]\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/tickets/1/edit",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"tickets",
+								"1",
+								"edit"
+							]
+						}
+					},
+					"response": []
 				}
 			]
+		},
+		{
+			"name": "Inventory",
+			"item": [
+				{
+					"name": "Create inventory item",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3MTE0MTMsImlhdCI6MTc2MzcwNzgxMywic3ViIjoiNCJ9.DGTsI_HB-647y5Xq5YfplspDSZZUQ7HJR3J879O8EQE",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"item_name\": \"Brake Pads\",\n    \"quantity\": 50,\n    \"price\": 25.99\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/inventory/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"inventory",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Inventory items",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3MTE0MTMsImlhdCI6MTc2MzcwNzgxMywic3ViIjoiNCJ9.DGTsI_HB-647y5Xq5YfplspDSZZUQ7HJR3J879O8EQE",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"item_name\": \"Brake Pads\",\n    \"quantity\": 50,\n    \"price\": 25.99\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/inventory/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"inventory",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get inventory item by id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3MTE0MTMsImlhdCI6MTc2MzcwNzgxMywic3ViIjoiNCJ9.DGTsI_HB-647y5Xq5YfplspDSZZUQ7HJR3J879O8EQE",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"item_name\": \"Brake Pads\",\n    \"quantity\": 50,\n    \"price\": 25.99\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/inventory/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"inventory",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update inventory item",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3MTE0MTMsImlhdCI6MTc2MzcwNzgxMywic3ViIjoiNCJ9.DGTsI_HB-647y5Xq5YfplspDSZZUQ7HJR3J879O8EQE",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"item_name\": \"Brake Pads\",\n    \"quantity\": 40,\n    \"price\": 25.99\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/inventory/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"inventory",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete inventory item by id",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3MTE0MTMsImlhdCI6MTc2MzcwNzgxMywic3ViIjoiNCJ9.DGTsI_HB-647y5Xq5YfplspDSZZUQ7HJR3J879O8EQE",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"item_name\": \"Brake Pads\",\n    \"quantity\": 40,\n    \"price\": 25.99\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/inventory/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"inventory",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Mechanics with the most tickets",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjM3MTE0MTMsImlhdCI6MTc2MzcwNzgxMywic3ViIjoiNCJ9.DGTsI_HB-647y5Xq5YfplspDSZZUQ7HJR3J879O8EQE"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"remove_ids\": [2]\n}\n"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/mechanics/most-tickets",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"mechanics",
+						"most-tickets"
+					]
+				}
+			},
+			"response": []
 		},
 		{
 			"name": "Create Ticket",

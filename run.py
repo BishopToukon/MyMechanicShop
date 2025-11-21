@@ -24,6 +24,7 @@ if __name__ == "__main__":
     # Create all tables
     with app.app_context():
         db.create_all()
+        #db.drop_all()
         print("Database tables created.")
 
     print("Starting Flask app...")

@@ -2,8 +2,8 @@ from flask import request, jsonify
 from flask import current_app as app
 from sqlalchemy.exc import IntegrityError
 from marshmallow.exceptions import ValidationError
-from App.models import Mechanics
-from App.extensions import db
+from App.models import Mechanics, service_mechanics
+from App.extensions import db, limiter, cache
 from . import mechanics_bp
 from .schemas import mechanic_schema, mechanics_schema
 
@@ -12,6 +12,7 @@ from .schemas import mechanic_schema, mechanics_schema
 
 # CREATE MECHANIC
 @mechanics_bp.route("/", methods=["POST"])
+@limiter.limit("5 per minute")  # Use limiter directly
 def add_mechanic():
     try:
         data = request.get_json() or {}
@@ -42,6 +43,7 @@ def add_mechanic():
 
 # GET all mechanics
 @mechanics_bp.route("/", methods=["GET"])
+@cache.cached(timeout=60)  # Cache for 60 seconds
 def get_mechanics():
     try:
         all_mechanics = Mechanics.query.all()
@@ -52,6 +54,7 @@ def get_mechanics():
 
 # GET a single mechanic
 @mechanics_bp.route("/<int:mechanic_id>", methods=["GET"])
+@cache.cached(timeout=60)  # Cache for 60 seconds
 def get_mechanic(mechanic_id):
     try:
         mechanic = Mechanics.query.get(mechanic_id)
@@ -118,6 +121,34 @@ def update_mechanic(mechanic_id):
 @mechanics_bp.route("/health")
 def health_check():
     return {"status": "healthy", "database": "connected"}, 200
+
+
+@mechanics_bp.route("/most-tickets", methods=["GET"])
+@cache.cached(timeout=60)
+def get_mechanic_with_most_tickets():
+    try:
+        print("Request Headers:", request.headers)  # Debugging
+        print("Request Method:", request.method)    # Debugging
+
+        # Query the mechanic with the most tickets
+        result = db.session.query(
+            Mechanics.name, db.func.count(service_mechanics.c.ticket_id).label("ticket_count")
+        ).join(service_mechanics, Mechanics.mechanic_id == service_mechanics.c.mechanic_id) \
+         .group_by(Mechanics.name) \
+         .order_by(db.desc("ticket_count")) \
+         .first()
+
+        if not result:
+            return jsonify({"message": "No mechanics or tickets found"}), 404
+
+        return jsonify({
+            "mechanic": result.name,
+            "ticket_count": result.ticket_count
+        }), 200
+
+    except Exception as e:
+        print("Error:", str(e))  # Debugging
+        return jsonify({"error": str(e)}), 500
 
 
 print("Mechanic routes loaded")

@@ -1,5 +1,5 @@
 from App.extensions import ma
-from App.models import Customer, Cars, ServiceTicket, Mechanics  # Ensure these models are defined in App.models
+from App.models import Customer, ServiceTicket, Mechanics  # Ensure these models are defined in App.models
 
 class CustomerSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -9,16 +9,6 @@ class CustomerSchema(ma.SQLAlchemyAutoSchema):
 
 Customers_schema = CustomerSchema(many=True)
 Customer_schema = CustomerSchema()
-
-
-class CarSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Cars
-        include_relationships = True
-        load_instance = True
-
-Cars_schema = CarSchema(many=True)
-Car_schema = CarSchema()
 
 
 class ServiceTicketSchema(ma.SQLAlchemyAutoSchema):
