@@ -1,4 +1,4 @@
-name: MyMechanicShop CI Workflow
+ame: MyMechanicShop CI/CD Workflow
 
 on:
   push:
@@ -7,6 +7,9 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
 
 jobs:
   build-and-test:
@@ -40,3 +43,35 @@ jobs:
           echo "Working Directory: $(pwd)"
           echo "Contents of Working Directory: $(ls -l)"
           echo "Contents of site-packages: $(ls -l venv/lib/python*/site-packages)"
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Production
+        run: |
+          echo "Deploying application..."
+          # Add your deployment commands here
+
+    deploy:
+      needs: build-and-test
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+
+        - name: Deploy to Production
+          run: |
+            echo "Deploying application..."
+            # Add your deployment commands here
+          
+          name: Deploy to Production
+          USES: johnbeynon/render-deploy-action@v0.0.0
+          with:
+            service_id: ${{ secrets.RENDER_SERVICE_ID }}
+            api_key: ${{ secrets.RENDER_API_KEY }}
