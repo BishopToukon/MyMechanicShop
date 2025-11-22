@@ -12,6 +12,8 @@ inventory_bp = Blueprint('inventory', __name__)
 def create_inventory_item():
     try:
         data = request.get_json() or {}
+        if "quantity" in data and data["quantity"] < 0:
+            return jsonify({"error": "Quantity cannot be negative"}), 400
         inventory_item = inventory_schema.load(data)
 
         # Add the inventory item to the database
@@ -62,18 +64,27 @@ def update_inventory_item(item_id):
             return jsonify({"error": "Inventory item not found"}), 404
 
         data = request.get_json() or {}
+
+        # Validate input data
+        if "quantity" in data and data["quantity"] < 0:
+            return jsonify({"error": "Quantity cannot be negative"}), 400
+
         inventory_item = inventory_schema.load(data, instance=inventory_item, partial=True)
 
         # Commit changes to the database
-        db.session.commit()
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": "Database error occurred"}), 500
 
         return jsonify({
             "message": "Inventory item updated successfully",
             "data": inventory_schema.dump(inventory_item)
         }), 200
 
-    except ValidationError as err:
-        return jsonify({"error": err.messages}), 400
+    except ValidationError as ve:
+        return jsonify({"error": ve.messages}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
