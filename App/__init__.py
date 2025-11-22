@@ -1,7 +1,7 @@
 from flask import Flask
 from App.Blueprints.Inventory.routes import inventory_bp  # Import the inventory blueprint
 from App.extensions import db, ma, limiter, cache
-from App.config import DevelopmentConfig
+from App.config import DevelopmentConfig, ProductionConfig
 from App.Blueprints.Service_Ticket_blueprint.routes import service_tickets_bp
 from App.Blueprints.Mechanic_blueprint.routes import mechanics_bp
 from App.Blueprints.Members_blueprint.routes import customers_bp
@@ -38,3 +38,5 @@ def create_app(config_name=None):
 
 
     return app
+
+app = create_app('ProductionConfig')

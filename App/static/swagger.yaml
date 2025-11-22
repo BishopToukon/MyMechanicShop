@@ -12,4 +12,108 @@ produces:
   - "application/json"
 
 securityDefinitions:
-  bearerAuth
+  bearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+
+paths:
+  /inventory/:
+    get:
+      tags:
+        - Inventory
+      summary: "Get all inventory items"
+      description: "Retrieve a list of all inventory items."
+      responses:
+        200:
+          description: "A list of inventory items."
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Inventory"
+        500:
+          description: "Internal server error."
+    post:
+      tags:
+        - Inventory
+      summary: "Create a new inventory item"
+      description: "Add a new item to the inventory."
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/InventoryPayload"
+      responses:
+        201:
+          description: "Inventory item created successfully."
+          schema:
+            $ref: "#/definitions/Inventory"
+        400:
+          description: "Invalid input."
+        500:
+          description: "Internal server error."
+
+  /members/:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Members
+      summary: "Get all members"
+      description: "Retrieve a list of all members. Requires authentication."
+      responses:
+        200:
+          description: "A list of members."
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Member"
+        401:
+          description: "Unauthorized. Missing or invalid token."
+
+definitions:
+  Inventory:
+    type: "object"
+    properties:
+      item_id:
+        type: "integer"
+        description: "The unique ID of the inventory item."
+      item_name:
+        type: "string"
+        description: "The name of the inventory item."
+      quantity:
+        type: "integer"
+        description: "The quantity of the inventory item."
+      price:
+        type: "number"
+        format: "float"
+        description: "The price of the inventory item."
+
+  InventoryPayload:
+    type: "object"
+    properties:
+      item_name:
+        type: "string"
+        description: "The name of the inventory item."
+      quantity:
+        type: "integer"
+        description: "The quantity of the inventory item."
+      price:
+        type: "number"
+        format: "float"
+        description: "The price of the inventory item."
+    required:
+      - item_name
+      - quantity
+      - price
+
+  Member:
+    type: "object"
+    properties:
+      member_id:
+        type: "integer"
+      name:
+        type: "string"
+      email:
+        type: "string"
