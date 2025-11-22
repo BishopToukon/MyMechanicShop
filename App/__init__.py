@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, app
+import os  # Import the os module
 from App.Blueprints.Inventory.routes import inventory_bp  # Import the inventory blueprint
 from App.extensions import db, ma, limiter, cache
 from App.config import DevelopmentConfig, ProductionConfig
@@ -18,10 +19,12 @@ swaggerui_blueprint = get_swaggerui_blueprint(
     }
 )
 
-def create_app(config_name=None):
+def create_app(config_name):
     app = Flask(__name__)
-    app.config.from_object(DevelopmentConfig)
-    
+    if os.environ.get("RENDER") == "true":
+        app.config.from_object(ProductionConfig)
+    else:
+        app.config.from_object(DevelopmentConfig)
 
     # Initialize extensions
     db.init_app(app)
@@ -34,8 +37,7 @@ def create_app(config_name=None):
     app.register_blueprint(mechanics_bp, url_prefix="/mechanics")
     app.register_blueprint(service_tickets_bp, url_prefix="/tickets")
     app.register_blueprint(inventory_bp, url_prefix="/inventory")  # Register inventory blueprint
-    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL) #Registering our swagger blueprint
-
+    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)  # Registering our swagger blueprint
 
     return app
 

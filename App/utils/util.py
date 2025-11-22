@@ -4,7 +4,7 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta
 import os
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "your_secret_key")
+SECRET_KEY = os.environ.get("SECRET_KEY") or "your_secret_key"
 ALGORITHM = "HS256"
 
 

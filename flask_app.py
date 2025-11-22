@@ -8,7 +8,7 @@ from App import create_app
 from App.models import db
 
 # Create Flask app
-app = create_app()
+app = create_app('ProductionConfig')  # Use 'DevelopmentConfig' or 'ProductionConfig'
 
 if __name__ == "__main__":
     # Default port
